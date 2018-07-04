@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">News</string>
+    <string name="home_section">Home</string>
+    <string name="science_section">Science</string>
+    <string name="football_section">Football</string>
+    <string name="business_section">Business</string>
+    <string name="eg_section">Egypt News</string>
+    <string name="ar_section">Arabic News</string>
+    <string name="world_section">World News</string>
+    <string name="Tech_section">Technology</string>
+
+
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+</resources>
