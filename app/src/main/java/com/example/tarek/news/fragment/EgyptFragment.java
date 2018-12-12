@@ -30,13 +30,14 @@ import com.google.android.gms.ads.MobileAds;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
+
 public class EgyptFragment  extends Fragment {
     Adapter adapter;
     TextView mEmptyStateTextView ;
-    View loadingIndicator;
     private static final String EGYPT_URL="https://newsapi.org/v2/top-headlines?country=eg&apiKey=1ed38682eb2c45a2bf657366a44b581d";
-    private AdView mAdView;
-
+    WaveSwipeRefreshLayout mWaveSwipeRefreshLayout;
+    NewsAsyncTask task;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -45,25 +46,29 @@ public class EgyptFragment  extends Fragment {
         View view = inflater.inflate(R.layout.fragment, container, false);
 
         try {
-            MobileAds.initialize(getActivity(),
-                    "ca-app-pub-3940256099942544~3347511713");
 
-            mAdView = view.findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-            mAdView.loadAd(adRequest);
+            mWaveSwipeRefreshLayout = (WaveSwipeRefreshLayout) view.findViewById(R.id.main_swipe);
+            mWaveSwipeRefreshLayout.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+                @Override public void onRefresh() {
+                    // Do work to refresh the list here.
+                    new NewsAsyncTask().execute(EGYPT_URL);
 
+
+                }
+            });
         ListView listView= view.findViewById(R.id.list_view);
 
-        loadingIndicator= view.findViewById(R.id.loading_indicator);
+
         mEmptyStateTextView= (TextView)view.findViewById(R.id.empty_view);
 
-        loadingIndicator.setVisibility(View.VISIBLE);
+
         listView.setEmptyView(mEmptyStateTextView);
         final ArrayList<NewsSrc> newsSrcArrayList=new ArrayList<>();
         adapter = new Adapter(getActivity(), newsSrcArrayList);
-        NewsAsyncTask task = new  NewsAsyncTask();
+         task = new  NewsAsyncTask();
         listView.setAdapter(adapter);
         task.execute(EGYPT_URL);
+        mWaveSwipeRefreshLayout.setRefreshing(true);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -107,7 +112,7 @@ public class EgyptFragment  extends Fragment {
             try {
 
 
-                loadingIndicator.setVisibility(View.GONE);
+                mWaveSwipeRefreshLayout.setRefreshing(false);
                 ConnectivityManager cm =
                         (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 

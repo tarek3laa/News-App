@@ -29,12 +29,14 @@ import com.google.android.gms.ads.MobileAds;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
+
 public class ArabicFragment extends Fragment {
     Adapter adapter;
     TextView mEmptyStateTextView;
-    View loadingIndicator;
+    WaveSwipeRefreshLayout mWaveSwipeRefreshLayout;
+    ArabicAsyncTask task;
     private static final String ARABIC_URL = "https://newsapi.org/v2/top-headlines?language=ar&apiKey=1ed38682eb2c45a2bf657366a44b581d";
-    private AdView mAdView;
 
     @Nullable
     @Override
@@ -47,23 +49,28 @@ public class ArabicFragment extends Fragment {
 
         try {
 
-            MobileAds.initialize(getActivity(),
-                    "ca-app-pub-3940256099942544~3347511713");
+            mWaveSwipeRefreshLayout = (WaveSwipeRefreshLayout) view.findViewById(R.id.main_swipe);
+            mWaveSwipeRefreshLayout.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+                @Override public void onRefresh() {
+                    // Do work to refresh the list here.
+                    new ArabicAsyncTask().execute(ARABIC_URL);
 
-            mAdView = view.findViewById(R.id.adView);
-            AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-            mAdView.loadAd(adRequest);
 
-        ListView listView = view.findViewById(R.id.list_view);
+                }
+            });
 
-        loadingIndicator = view.findViewById(R.id.loading_indicator);
+
+
+
+            ListView listView = view.findViewById(R.id.list_view);
+
         mEmptyStateTextView = (TextView) view.findViewById(R.id.empty_view);
 
-        loadingIndicator.setVisibility(View.VISIBLE);
+        mWaveSwipeRefreshLayout.setRefreshing(true);
         listView.setEmptyView(mEmptyStateTextView);
         final ArrayList<NewsSrc> newsSrcArrayList = new ArrayList<>();
         adapter = new Adapter(getActivity(), newsSrcArrayList);
-        ArabicAsyncTask task = new ArabicAsyncTask();
+        task = new ArabicAsyncTask();
         listView.setAdapter(adapter);
         task.execute(ARABIC_URL);
 
@@ -109,7 +116,7 @@ public class ArabicFragment extends Fragment {
             try {
 
 
-                loadingIndicator.setVisibility(View.GONE);
+                mWaveSwipeRefreshLayout.setRefreshing(false);
                 ConnectivityManager cm =
                         (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 

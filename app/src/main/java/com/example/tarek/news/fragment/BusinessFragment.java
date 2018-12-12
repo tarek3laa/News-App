@@ -29,13 +29,16 @@ import com.google.android.gms.ads.MobileAds;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
+
 public class BusinessFragment extends Fragment {
     Adapter adapter;
 
     TextView mEmptyStateTextView ;
-    View loadingIndicator;
     private static final String BUSINESS_URL="https://content.guardianapis.com/search?section=business&show-fields=all&use-date=published&order-by=newest&api-key=622ce180-4b1b-4903-afbb-71a287d6bef1";
-    private AdView mAdView;
+    WaveSwipeRefreshLayout mWaveSwipeRefreshLayout;
+
+    NewsAsyncTask task;
 
     @Nullable
     @Override
@@ -47,27 +50,28 @@ public class BusinessFragment extends Fragment {
 
       try {
 
-          MobileAds.initialize(getActivity(),
-                  "ca-app-pub-3940256099942544~3347511713");
 
-          mAdView = view.findViewById(R.id.adView);
-          AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-          mAdView.loadAd(adRequest);
 
           ListView listView= view.findViewById(R.id.list_view);
+          mWaveSwipeRefreshLayout = (WaveSwipeRefreshLayout) view.findViewById(R.id.main_swipe);
+          mWaveSwipeRefreshLayout.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+              @Override public void onRefresh() {
+                  // Do work to refresh the list here.
+                  new NewsAsyncTask().execute(BUSINESS_URL);
 
 
-        loadingIndicator= view.findViewById(R.id.loading_indicator);
+              }
+          });
         mEmptyStateTextView= (TextView)view.findViewById(R.id.empty_view);
 
-        loadingIndicator.setVisibility(View.VISIBLE);
         listView.setEmptyView(mEmptyStateTextView);
 
         final ArrayList <NewsSrc>newsSrcArrayList=new ArrayList<>();
         adapter = new Adapter(getActivity(), newsSrcArrayList);
-        NewsAsyncTask task = new NewsAsyncTask();
+        task = new NewsAsyncTask();
         listView.setAdapter(adapter);
         task.execute(BUSINESS_URL);
+        mWaveSwipeRefreshLayout.setRefreshing(true);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -112,8 +116,7 @@ public class BusinessFragment extends Fragment {
         protected void onPostExecute(List<NewsSrc> data) {
 
           try {
-              loadingIndicator.setVisibility(View.GONE);
-
+            mWaveSwipeRefreshLayout.setRefreshing(false);
             ConnectivityManager cm =
                     (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
 

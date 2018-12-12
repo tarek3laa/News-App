@@ -14,18 +14,12 @@ import com.google.android.gms.ads.MobileAds;
 
 public class ArabicNewsActivity extends AppCompatActivity {
 WebView web;
-    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_arabic_news);
-        MobileAds.initialize(this,
-                "ca-app-pub-3940256099942544~3347511713");
 
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
-        mAdView.loadAd(adRequest);
         try{
         Intent intent =getIntent();
         String url=intent.getStringExtra("url");
